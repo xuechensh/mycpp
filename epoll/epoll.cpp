@@ -118,7 +118,7 @@ int main(int argc, char* argv[]){
 
                     bzero(message, MSG_SIZE);
                     sprintf(message, "Receive message success!\n");
-                    write(listen_fd, message, strlen(message));
+                    write(client_fd, message, strlen(message));
                 }
             }
         }
