@@ -13,7 +13,7 @@
 #define SERVER_PORT (9999)
 #define SERVER_MAX_LISTEN_LEN (30)
 
-#define MSG_SIZE (1024)
+#define MSG_SIZE (5)
 
 using namespace std;
 
@@ -68,9 +68,6 @@ int main(int argc, char* argv[]){
     //create epoll event list
     struct epoll_event evs[EPOLL_MAX_LISTEN_SIZE];
 
-    //create msg 
-    char msg[MSG_SIZE] = {0};
-
     //start
     while( 1 ){
         //epoll work
@@ -99,16 +96,17 @@ int main(int argc, char* argv[]){
                     continue;
                 }
                 
-                bzero(msg, MSG_SIZE);
-                sprintf(msg, "Hi");
-                write(client_fd, msg, strlen(msg));
+                char message[MSG_SIZE];
+                bzero(message, MSG_SIZE);
+                sprintf(message, "Hi\n");
+                write(client_fd, message, strlen(message));
             }
             // client fd
             else{
                 int client_fd = evs[i].data.fd;
-                char msg[MSG_SIZE];
-                bzero(msg, MSG_SIZE);
-                int read_len = read( client_fd, msg, MSG_SIZE-1);
+                char message[MSG_SIZE];
+                bzero(message, MSG_SIZE);
+                int read_len = read( client_fd, message, MSG_SIZE-1);
                 if ( 0 == read_len ){
                     //client fd close
                     epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, nullptr);
@@ -116,11 +114,12 @@ int main(int argc, char* argv[]){
                     continue;
                 }
                 else{
-                    cout << "Client:" << client_fd << " send:" << msg << endl;
+                    message[MSG_SIZE - 1] = '\0';
+                    cout << "Client:" << client_fd << " send:" << message << endl;
 
-                    bzero(msg, MSG_SIZE);
-                    sprintf(msg, "Next");
-                    write(client_fd, msg, strlen(msg));
+                    bzero(message, MSG_SIZE);
+                    sprintf(message, "Next");
+                    write(client_fd, message, strlen(message));
                 }
             }
         }
