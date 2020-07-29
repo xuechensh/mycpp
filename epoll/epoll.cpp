@@ -13,7 +13,7 @@
 #define SERVER_PORT (9999)
 #define SERVER_MAX_LISTEN_LEN (30)
 
-#define MSG_SIZE (1024)
+#define MSG_SIZE (5)
 
 using namespace std;
 
@@ -98,7 +98,7 @@ int main(int argc, char* argv[]){
                 
                 char message[MSG_SIZE];
                 bzero(message, MSG_SIZE);
-                sprintf(message, "Welcome to cloud chart\n");
+                sprintf(message, "Hi\n");
                 write(client_fd, message, strlen(message));
             }
             // client fd
@@ -106,18 +106,19 @@ int main(int argc, char* argv[]){
                 int client_fd = evs[i].data.fd;
                 char message[MSG_SIZE];
                 bzero(message, MSG_SIZE);
-                int read_len = read( client_fd, message, MSG_SIZE);
+                int read_len = read( client_fd, message, MSG_SIZE-1);
                 if ( 0 == read_len ){
                     //client fd close
                     epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, nullptr);
                     close(client_fd);
+                    continue;
                 }
                 else{
                     message[MSG_SIZE - 1] = '\0';
                     cout << "Client:" << client_fd << " send:" << message << endl;
 
                     bzero(message, MSG_SIZE);
-                    sprintf(message, "Receive message success!\n");
+                    sprintf(message, "Next");
                     write(client_fd, message, strlen(message));
                 }
             }
