@@ -57,7 +57,7 @@ int main(int argc, char* argv[]){
     //add dest fd to epoll fd
     struct epoll_event ev;
     ev.data.fd = listen_fd;
-    ev.events = EPOLLIN;
+    ev.events = EPOLLIN | EPOLLET;
     int add_result = epoll_ctl(epoll_fd, EPOLL_CTL_ADD, listen_fd, &ev);
     if ( -1 == add_result ){
         cout << "add listenfd to epollfd error" << endl;
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]){
                 //add client client fd to epoll fd
                 struct epoll_event client_ev;
                 client_ev.data.fd = client_fd;
-                client_ev.events = EPOLLIN;
+                client_ev.events = EPOLLIN | EPOLLET;
                 int client_add_result = epoll_ctl( epoll_fd, EPOLL_CTL_ADD, client_fd, &client_ev);
                 if ( -1 == client_add_result ){
                     cout << "add " << client_fd << " to epoll fd error" << endl;

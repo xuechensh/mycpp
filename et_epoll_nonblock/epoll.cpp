@@ -7,13 +7,14 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <fcntl.h>
 
 #define EPOLL_MAX_LISTEN_SIZE (1000)
 
 #define SERVER_PORT (9999)
 #define SERVER_MAX_LISTEN_LEN (30)
 
-#define MSG_SIZE (5)
+#define MSG_SIZE (10)
 
 using namespace std;
 
@@ -27,6 +28,7 @@ int main(int argc, char* argv[]){
     
     //create addr
     sockaddr_in server_addr;
+    memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     server_addr.sin_port = htons(SERVER_PORT);
@@ -56,7 +58,11 @@ int main(int argc, char* argv[]){
     //add dest fd to epoll fd
     struct epoll_event ev;
     ev.data.fd = listen_fd;
-    ev.events = EPOLLIN;
+    ev.events = EPOLLIN | EPOLLET;
+    //set lfd nonblock
+    int flag = fcntl( listen_fd, F_GETFL, 0);
+    flag |= O_NONBLOCK;
+    fcntl( listen_fd, F_SETFL, flag);
     int add_result = epoll_ctl(epoll_fd, EPOLL_CTL_ADD, listen_fd, &ev);
     if ( -1 == add_result ){
         cout << "add listenfd to epollfd error" << endl;
@@ -67,6 +73,9 @@ int main(int argc, char* argv[]){
     
     //create epoll event list
     struct epoll_event evs[EPOLL_MAX_LISTEN_SIZE];
+
+    //create msg 
+    char msg[MSG_SIZE] = {0};
 
     //start
     while( 1 ){
@@ -88,7 +97,11 @@ int main(int argc, char* argv[]){
                 //add client client fd to epoll fd
                 struct epoll_event client_ev;
                 client_ev.data.fd = client_fd;
-                client_ev.events = EPOLLIN;
+                client_ev.events = EPOLLIN | EPOLLET;
+                //set client fd nonblock
+                flag = fcntl( client_fd, F_GETFL, 0);
+                flag |= O_NONBLOCK;
+                fcntl( client_fd, F_SETFL, flag);
                 int client_add_result = epoll_ctl( epoll_fd, EPOLL_CTL_ADD, client_fd, &client_ev);
                 if ( -1 == client_add_result ){
                     cout << "add " << client_fd << " to epoll fd error" << endl;
@@ -96,30 +109,31 @@ int main(int argc, char* argv[]){
                     continue;
                 }
                 
-                char message[MSG_SIZE];
-                bzero(message, MSG_SIZE);
-                sprintf(message, "Hi\n");
-                write(client_fd, message, strlen(message));
+                bzero(msg, MSG_SIZE);
+                sprintf(msg, "Hi");
+                write(client_fd, msg, strlen(msg));
             }
             // client fd
             else{
                 int client_fd = evs[i].data.fd;
-                char message[MSG_SIZE];
-                bzero(message, MSG_SIZE);
-                int read_len = read( client_fd, message, MSG_SIZE-1);
-                if ( 0 == read_len ){
+                char msg[MSG_SIZE];
+                bzero(msg, MSG_SIZE);
+                int read_len = read( client_fd, msg, MSG_SIZE-1);
+                
+                while( read_len = read( client_fd, msg, MSG_SIZE-1) > 0 ){
+                    cout << "Client:" << client_fd << " send:" << msg << endl;
+                }
+
+                if ( read_len == -1 && errno == EAGAIN ){
+                    cout << "read finish" << endl;
+                    bzero(msg, MSG_SIZE);
+                    sprintf(msg, "Next");
+                    write(client_fd, msg, strlen(msg));
+                } else {
                     //client fd close
                     epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, nullptr);
                     close(client_fd);
                     continue;
-                }
-                else{
-                    message[MSG_SIZE - 1] = '\0';
-                    cout << "Client:" << client_fd << " send:" << message << endl;
-
-                    bzero(message, MSG_SIZE);
-                    sprintf(message, "Next");
-                    write(client_fd, message, strlen(message));
                 }
             }
         }
