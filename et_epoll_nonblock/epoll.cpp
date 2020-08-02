@@ -132,6 +132,7 @@ int main(int argc, char* argv[]){
                     write(client_fd, msg, strlen(msg));
                 } else {
                     //client fd close
+                    cout << "Client:" << client_fd << " close" << endl;
                     epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, nullptr);
                     close(client_fd);
                     continue;
