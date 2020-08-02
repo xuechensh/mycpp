@@ -32,6 +32,7 @@ int main(int argc, const char* argv[])
     {
         // 发送数据
         char buf[1024];
+        bzero(buf, 1024);
         printf("请输入要发送的字符串: \n");
         fgets(buf, sizeof(buf), stdin);
         write(fd, buf, strlen(buf));
