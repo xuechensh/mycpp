@@ -110,7 +110,7 @@ int main(int argc, char* argv[]){
                 char msg[MSG_SIZE];
                 bzero(msg, MSG_SIZE);
                 int read_len = read( client_fd, msg, MSG_SIZE-1);
-                if ( 0 == read_len ){
+                if ( 0 >= read_len ){
                     //client fd close
                     epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, nullptr);
                     close(client_fd);
