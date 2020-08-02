@@ -120,7 +120,7 @@ int main(int argc, char* argv[]){
                 bzero(msg, MSG_SIZE);
                 int read_len = -1;
 
-                while( read_len = read( client_fd, msg, MSG_SIZE-1) > 0 ){
+                while( (read_len = read( client_fd, msg, MSG_SIZE-1)) > 0 ){
                     cout << "Client:" << client_fd << " send:" << msg << endl;
                     bzero(msg, MSG_SIZE);
                 }
