@@ -9,6 +9,7 @@
 
 int main(int grac, char* argv[])
 {
+    //create socket
     int fd = socket( PF_INET, SOCK_DGRAM, 0);
     if ( fd == -1 )
     {
@@ -16,6 +17,7 @@ int main(int grac, char* argv[])
         return -1;
     }
 
+    //creat server ip addr and bin
     struct sockaddr_in server_addr;
     memset(&server_addr, 0 ,sizeof(server_addr));
     server_addr.sin_family = AF_INET;
@@ -27,25 +29,28 @@ int main(int grac, char* argv[])
         return -1;
     }
 
+    //creat client ip addr
     struct sockaddr_in client_addr;
     memset(&client_addr, 0, sizeof(client_addr));
     client_addr.sin_family = AF_INET;
     client_addr.sin_port = htons(8989);
     inet_pton(AF_INET, "239.0.0.10", &client_addr.sin_addr.s_addr);
 
+    //set multicast flag to server fd
     struct ip_mreqn flag;
     inet_pton(AF_INET, "239.0.0.10", &flag.imr_multiaddr.s_addr);
     inet_pton(AF_INET, "0.0.0.0", &flag.imr_address.s_addr);
-    flag.imr_ifindex = if_nametoindex("eth0");
+    flag.imr_ifindex = if_nametoindex("enp0s3");
     setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, &flag, sizeof(flag));
 
+    //communication
     while(1)
     {
         static int num = 0;
         num ++;
         char msg[1024] = {0};
         sprintf( msg, "hello to multicast network, hello time = %d", num);
-        int ret = sendto(fd, msg, sizeof(msg)+1, 0, (struct sockaddr*)&client_addr, sizeof(client_addr));
+        int ret = sendto(fd, msg, strlen(msg)+1, 0, (struct sockaddr*)&client_addr, sizeof(client_addr));
         if( ret == -1 )
         {
             perror("sendto error");
