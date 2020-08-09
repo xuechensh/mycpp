@@ -30,7 +30,7 @@ int main(int grac, char* argv[])
     struct sockaddr_in client_addr;
     memset(&client_addr, 0, sizeof(client_addr));
     client_addr.sin_family = AF_INET;
-    client_addr.sin_port = 8989;
+    client_addr.sin_port = htons(8989);
     inet_pton(AF_INET, "239.0.0.10", &client_addr.sin_addr.s_addr);
 
     struct ip_mreqn flag;
@@ -42,6 +42,7 @@ int main(int grac, char* argv[])
     while(1)
     {
         static int num = 0;
+        num ++;
         char msg[1024] = {0};
         sprintf( msg, "hello to multicast network, hello time = %d", num);
         int ret = sendto(fd, msg, sizeof(msg)+1, 0, (struct sockaddr*)&client_addr, sizeof(client_addr));
