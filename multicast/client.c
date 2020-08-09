@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
     memset(&flag, 0, sizeof(flag));
     inet_pton(AF_INET, "239.0.0.10", &flag.imr_multiaddr.s_addr);
     inet_pton(AF_INET, "0.0.0.0", &flag.imr_address.s_addr);
-    flag.imr_ifindex = if_nametoindex("eth0");
+    flag.imr_ifindex = if_nametoindex("enp0s3");
     setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &flag, sizeof(flag));
 
     while(1)
