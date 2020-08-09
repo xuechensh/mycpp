@@ -39,7 +39,7 @@ int main(int grac, char* argv[])
     flag.imr_ifindex = if_nametoindex("eth0");
     setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, &flag, sizeof(flag));
 
-    while(0)
+    while(1)
     {
         static int num = 0;
         char msg[1024] = {0};
