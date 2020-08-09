@@ -21,6 +21,11 @@ int main(int argc, char* argv[])
     client_addr.sin_family = AF_INET;
     inet_pton(AF_INET, "0.0.0.0", &client_addr.sin_addr.s_addr);
     client_addr.sin_port = htons(8989);
+    if ( -1 == bind( fd, (struct sockaddr*)&client_addr, sizeof(client_addr)) )
+    {
+        perror("bind address to client fd error");
+        return -1;
+    }
 
     struct ip_mreqn flag;
     memset(&flag, 0, sizeof(flag));
