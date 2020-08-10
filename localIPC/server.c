@@ -11,7 +11,7 @@
 int main(int argc, char* argv[])
 {
     //create lfd
-    int lfd = socket(AF_UNIX, SOCK_STREAM, 0);
+    int lfd = socket( AF_UNIX, SOCK_STREAM, 0);
     if ( lfd == -1 )
     {
         perror("creat lfd error");
@@ -23,9 +23,9 @@ int main(int argc, char* argv[])
 
     //create server file and bind
     struct sockaddr_un server_addr;
-    memset(&server_addr, 0, sizeof(server_addr));
+    memset( &server_addr, 0, sizeof(server_addr));
     server_addr.sun_family = AF_UNIX;
-    strcpy(server_addr.sun_path, "server.socket");
+    strcpy( server_addr.sun_path, "server.socket");
     if ( -1 == bind( lfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) )
     {
         perror("bind server file to lfd error");
@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 
     //create client addr
     struct sockaddr_un client_addr;
-    memset(&client_addr, 0, sizeof(client_addr));
+    memset( &client_addr, 0, sizeof(client_addr));
     socklen_t len = sizeof(client_addr);
     
     //accept connect
@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
     while(1)
     {
         memset( msg, 0, sizeof(msg));
-        int recvlen = recv( cfd, msg, sizeof(msg), 0);
+        int recvlen = recv( cfd, msg, sizeof(msg)-1, 0);
         if ( recvlen == -1 )
         {
             perror("recv msg error");
@@ -71,9 +71,8 @@ int main(int argc, char* argv[])
         }
         else
         {
-            msg[1023] = '\0';
             printf("recv msg from client len: %d:%s", recvlen, msg);
-            send( cfd, msg, strlen(msg)+1, 0);
+            send( cfd, msg, recvlen, 0);
         }
     }
 

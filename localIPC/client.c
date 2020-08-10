@@ -49,12 +49,12 @@ int main(int argc, char* argv[])
     while(1)
     {   
         memset( msg, 0, sizeof(msg));
-        fgets( msg, sizeof(msg), stdin);
+        fgets( msg, sizeof(msg)-1, stdin);
         printf("send len is %d\n", strlen(msg));
         send( cfd, msg, strlen(msg), 0);
-
-        recv( cfd, msg, 1024, 0);
-        msg[1023] = '\0';
+        
+        memset( msg, 0, sizeof(msg));
+        recv( cfd, msg, sizeof(msg)-1, 0);
         printf("recv from server: %s", msg);
     }
 
