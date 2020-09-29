@@ -8,7 +8,7 @@ using namespace std;
 mutex mut;
 static int a = 0;
 
-void func()
+void func(void* arg)
 {
     unique_lock<mutex> lock(mut);
     ++a;
@@ -23,7 +23,10 @@ int main(int argc, char* argv[])
 
     for( int i = 0; i < 10; ++i)
     {
-        ThreadPool::Task a = func;
+        Task a;
+        a.name = "test";
+        a.cb = func;
+        a.arg = NULL;
         tp.addTask(a);
     }
 

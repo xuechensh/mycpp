@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <vector>
+#include <list>
 #include <mutex>
 #include <thread>
 #include <queue>
@@ -11,44 +12,38 @@
 
 using namespace std;
 
+struct Task
+{
+    string name;
+    function<void(void*)> cb;
+    void* arg;
+};
+
 class ThreadPool
 {
 public:
-    static const int NumOfThreads = 3;
-    enum TaskPriE { level0, level1, level2};
-    typedef function<void()> Task;
-    typedef pair<TaskPriE, Task> TaskPair;
-    
-    ThreadPool();
+    ThreadPool(int thread_num = 3);
     ~ThreadPool();
 
     void start();
     void stop();
 
     void addTask(const Task&);
-    void addTask(const TaskPair&);
 
 private:
     ThreadPool(const ThreadPool&);
     const ThreadPool& operator=(const ThreadPool&);
 
-    struct TaskPriComp
-    {
-        bool operator()(const TaskPair& p1, const TaskPair& p2)
-        {
-            return p1.first > p2.first;
-        }
-    };
-
     void ThreadLoop();
     Task take();
 
     typedef vector<thread*> Threads;
-    typedef priority_queue< TaskPair, vector<TaskPair>, TaskPriComp> Tasks;
+    typedef queue< Task, list<Task>> Tasks;
 
     Threads m_threads;
     Tasks m_tasks;
 
+    int m_thread_num;
     mutex m_mut;
     condition_variable m_cond;
     bool m_isStarted;
