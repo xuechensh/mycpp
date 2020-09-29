@@ -1,0 +1,20 @@
+start     #start gdb stop at 1 line
+l         #list to show source code example: l [number/function]
+b <line>  #break at line
+b <func>  #break at func
+b filename:[line/func]    #break at line or func in filename
+i         #info  example: i breakpoints
+d         #delete no break example: d 1
+s         #step: line to run and enter to function
+n         #next: line to run do not enter function
+r         #run: run process stop at break
+c         #continue: continue to run stop at next break
+p         #print: show arg
+display   #trace arg
+undisplay #example: undisplay 1
+set args   show args
+quit
+
+info threads   #show threads 
+thread    #enter thread id (id is info threads id)
+
