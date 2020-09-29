@@ -18,3 +18,6 @@ quit
 info threads   #show threads 
 thread    #enter thread id (id is info threads id)
 
+set scheduler-locking on  #gdb current thread stop other all threads
+show scheduler-locking  #show threads scheduler-locking status
+
