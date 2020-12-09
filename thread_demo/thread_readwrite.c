@@ -12,13 +12,14 @@ void* thread_read(void* arg)
 {
     srand(time(NULL));
     int num = *((int*)arg);
-    int i = 0;
+    int i;
+
     for( i = 0; i < 10; ++i) 
     {
         pthread_rwlock_rdlock(&rwlock);
         printf("pthread No.%d id=%lu read num = %d\n", num, pthread_self(), g_iNumber);
         pthread_rwlock_unlock(&rwlock);
-        sleep(rand() % 10);
+        sleep(rand() % 3);
     }
     
     int *result = malloc(sizeof(int));
@@ -30,14 +31,17 @@ void* thread_write(void* arg)
 {
     srand(time(NULL));
     int num = *((int*)arg);
-    int i = 0;
+    int i;
+
     for( i = 0; i < 10; ++i)
     {
+        printf("pthread No.%d id=%lu after write lock\n", num, pthread_self());
+
         pthread_rwlock_wrlock(&rwlock);
         g_iNumber = num;
         printf("pthread No.%d id=%lu set num = %d\n", num, pthread_self(), g_iNumber);
         pthread_rwlock_unlock(&rwlock);
-        sleep(rand() % 10);
+        sleep(rand() % 5);
     }
 
     int *result = malloc(sizeof(int));
@@ -72,7 +76,8 @@ int main( int argc, char* argv[])
         printf("int main %d thread exit return \n", *result);
         free(result);
     }
-
+    
+    pthread_rwlock_destroy( &rwlock);
     return 0;
 }
 

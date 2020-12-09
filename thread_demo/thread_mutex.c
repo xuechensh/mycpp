@@ -8,13 +8,17 @@ pthread_mutex_t mutex;
 
 void* change(void* arg)
 {
+    int i;
     int pthid = *((int*)arg);
-    pthread_mutex_lock( &mutex);
-    printf("thread %d visit num %d\n", pthid, g_iNum);
-    g_iNum = pthid;
-    printf("thread %d change num to %d\n", pthid, g_iNum);
-    pthread_mutex_unlock( &mutex);
+    for( i = 0; i < 10; i++){
+        int pthid = *((int*)arg);
+        printf("thread %d visit num %d\n", pthid, g_iNum);
+        g_iNum = pthid;
+        printf("thread %d change num to %d\n", pthid, g_iNum);
+        pthread_mutex_unlock( &mutex);
 
+        sleep(random()%5);
+    }
     int* result = malloc(sizeof(int));
     *result = pthid;
 

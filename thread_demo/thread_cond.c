@@ -11,19 +11,22 @@ void* thread_read(void* arg)
 {
     srand(time(NULL));
     int num = *((int*)arg);
-    
-    sleep(rand() % 10);
-    printf("thread %d ready to delete\n", num);
-    pthread_mutex_lock( &mutex);
-    while( g_iNumber == 0)
-    {
-        pthread_cond_wait( &cond, &mutex);
-    }
-    
-    g_iNumber -= 1;
+    int i;
 
-    printf("thread %d use one condition result = %d\n", num, g_iNumber);
-    pthread_mutex_unlock( &mutex);
+    for( i = 0; i < 5; i++){
+        sleep(rand() % 5);
+        printf("thread %d ready to delete\n", num);
+        pthread_mutex_lock( &mutex);
+        while( g_iNumber == 0)
+        {
+            pthread_cond_wait( &cond, &mutex);
+        }
+    
+        g_iNumber -= 1;
+
+        printf("thread %d use one condition result = %d\n", num, g_iNumber);
+        pthread_mutex_unlock( &mutex);
+    }
 
     int *result = malloc(sizeof(int));
     *result = num;
@@ -32,17 +35,18 @@ void* thread_read(void* arg)
 
 void* thread_write(void* arg)
 {
+    srand(time(NULL));
     int num = *((int*)arg);
-
     int i;
-    for( i = 0; i < 9; ++i)
+
+    for( i = 0; i < 30; ++i)
     {
         pthread_mutex_lock( &mutex);
-        pthread_cond_signal( &cond);
         g_iNumber += 1;
         printf("pthread No.%d id=%lu add one cond result = %d\n", num, pthread_self(), g_iNumber);
+        pthread_cond_signal( &cond);
         pthread_mutex_unlock( &mutex);
-        sleep( 2);
+        sleep( random()%5);
     }
 
     int *result = malloc(sizeof(int));
@@ -59,7 +63,7 @@ int main( int argc, char* argv[])
     pthread_t pids[10];
     int pno[10];
     int i = 0;
-    for( i = 0; i < 1; ++i)
+    for( i = 0; i < 2; ++i)
     {
         pno[i] = i + 1;
         pthread_create( &pids[i], NULL, thread_write, &pno[i]);
@@ -75,7 +79,7 @@ int main( int argc, char* argv[])
     for( i = 0; i < 10; ++i)
     {
         pthread_join( pids[i], (void**)&result);
-        printf("int main %d thread exit return \n", *result);
+        printf("thread %d exit return %d\n", pno[i], *result);
         free(result);
     }
     
